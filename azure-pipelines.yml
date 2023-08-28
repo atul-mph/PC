@@ -1,0 +1,29 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'Ubuntu-latest'
+
+steps:
+- task: Maven@3
+  inputs:
+    mavenPomFile: 'pom.xml'
+    mavenOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.11'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: false
+    testResultsFiles: '**/TEST-*.xml'
+    goals: 'spring-javaformat:apply package'
+
+
+- task: AzureSpringCloud@0
+  inputs:
+    azureSubscription: 'JB'
+    Action: 'Deploy'
+    AzureSpringCloud: '/subscriptions/6e977b0d-998c-42d7-97ed-dd70040cff12/resourceGroups/rg_fedex_east_us/providers/Microsoft.AppPlatform/Spring/asa-fx-demo'
+    AppName: 'petclinic'
+    DeploymentType: 'Artifacts'
+    UseStagingDeployment: false
+    DeploymentName: 'default'
+    Package: ./target/spring-petclinic-2.2.0.BUILD-SNAPSHOT.jar
